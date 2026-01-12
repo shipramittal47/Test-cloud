@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+    
+    environment {
+        AWS_ACCOUNT_ID = "843438950065"
+        AWS_DEFAULT_REGION = "us-east-1"
+        ECR_REPOSITORY = "spring-boot-app"
+        IMAGE_TAG = "latest"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t $ECR_REPOSITORY:$IMAGE_TAG ."
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    sh "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+                    sh "docker tag $ECR_REPOSITORY:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG"
+                    sh "docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG"
+                }
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    sh 'kubectl apply -f k8s/'
+                }
+            }
+        }
+    }
+}
