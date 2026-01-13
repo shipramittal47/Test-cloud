@@ -1,5 +1,5 @@
-# Use the official lightweight JDK image
-FROM openjdk:17-slim
+# Use Amazon's maintained build of OpenJDK 17
+FROM amazoncorretto:17-al2023-headless
 
 # Set the working directory
 WORKDIR /app
