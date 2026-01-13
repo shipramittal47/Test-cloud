@@ -5,7 +5,7 @@ FROM amazoncorretto:17-al2023-headless
 WORKDIR /app
 
 # Add the application's JAR file to the container
-COPY build/libs/banking-0.0.1-SNAPSHOT.jar /app/banking-service.jar
+COPY target/banking-app-0.0.1-SNAPSHOT.jar /app/banking-service.jar
 
 # Run the JAR file 
 ENTRYPOINT ["java", "-jar", "/app/banking-service.jar"]
